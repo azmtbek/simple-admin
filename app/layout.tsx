@@ -1,6 +1,8 @@
+import { ThemeProvider } from '@/components/ui/theme-provide';
 import './globals.css';
 
 import { GeistSans } from 'geist/font/sans';
+import Header from './header';
 
 let title = 'Next.js + Postgres Auth Starter';
 let description =
@@ -24,7 +26,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={GeistSans.variable}>{children}</body>
+      <body className={GeistSans.variable}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
