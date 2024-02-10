@@ -1,17 +1,16 @@
 import React from 'react';
 import ThemeButton from './theme-button';
-import Link from 'next/link';
 import { auth, signIn, signOut } from 'app/auth';
 import { Button } from '@/components/ui/button';
 
 async function Header() {
   let session = await auth();
   let sessionButton = <></>;
+
   if (session?.user) {
     sessionButton = <>
       <Button variant="ghost">
-        {session?.user?.name} -
-        {session?.user?.email}
+        <span className='pr-4'>Hello {session?.user?.name}! </span>
       </Button>
       <SignOut />
     </>;
@@ -38,30 +37,30 @@ export default Header;
 
 function SignOut() {
   return (
-    <Button>
-      <form
-        action={async () => {
-          'use server';
-          await signOut();
-        }}
-      >
-        <button type="submit">Sign out</button>
-      </form>
-    </Button>
+    <form
+      action={async () => {
+        'use server';
+        await signOut();
+      }}
+    >
+      <Button type="submit" variant="outline">
+        Sign out
+      </Button>
+    </form>
   );
 }
 
 function SignIn() {
   return (
-    <Button>
-      <form
-        action={async () => {
-          'use server';
-          await signIn();
-        }}
-      >
-        <button type="submit">Sign In</button>
-      </form>
-    </Button>
+    <form
+      action={async () => {
+        'use server';
+        await signIn();
+      }}
+    >
+      <Button type="submit" variant="outline">
+        Sign In
+      </Button>
+    </form>
   );
 }

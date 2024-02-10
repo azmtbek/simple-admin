@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Lock, MoreHorizontal, Trash2, Unlock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,54 +35,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useRouter } from "next/navigation";
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    lastLogin: 1707333190999,
-    status: "active",
-    name: "alex",
-    email: "ken99@yahoo.com",
-  },
-  {
-    id: "3u1reuv4",
-    lastLogin: 1707333190999,
-    name: "abe",
-    status: "active",
-    email: "Abe45@gmail.com",
-  },
-  {
-    id: "derv1ws0",
-    lastLogin: 1707333190999,
-    name: "monserrat",
-    status: "blocked",
-    email: "Monserrat44@gmail.com",
-  },
-  {
-    id: "5kma53ae",
-    lastLogin: 1707333190999,
-    name: "silas",
-    status: "active",
-    email: "Silas22@gmail.com",
-  },
-  {
-    id: "bhqecj4p",
-    lastLogin: 1707333190999,
-    name: "carmella",
-    status: "blocked",
-    email: "carmella@hotmail.com",
-  },
-];
-
-export type Payment = {
-  id: string;
-  lastLogin: number;
-  name?: string;
-  status: "active" | "blocked";
+export type UserData = {
+  id: number;
+  name: string | null;
+  status: string | null;
   email: string;
+  createdAt: Date | null;
+  lastLogin: Date | null; //TODO: change to lastLogin
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<UserData>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -134,9 +98,9 @@ export const columns: ColumnDef<Payment>[] = [
     accessorKey: "lastLogin",
     header: () => <div className="text-right">Last Login</div>,
     cell: ({ row }) => {
-      const date = parseFloat(row.getValue("lastLogin"));
+      const date: Date = row.getValue("lastLogin");
 
-      // Format the amount as a dollar amount
+      // Format date
       const formatted = new Intl.DateTimeFormat('en', {
         timeStyle: "medium",
         dateStyle: "long",
@@ -156,7 +120,7 @@ export const columns: ColumnDef<Payment>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
@@ -169,13 +133,13 @@ export const columns: ColumnDef<Payment>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText("" + user.email)}
             >
-              Copy payment ID
+              Copy User Email
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem disabled>Delete user</DropdownMenuItem>
+            <DropdownMenuItem disabled>Block/Unblock user</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -183,7 +147,15 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export function DataTable() {
+type DataTableProps = {
+  users: UserData[];
+  blockUsers: (userIds: number[]) => Promise<void>;
+  unblockUsers: (userIds: number[]) => Promise<void>;
+  deleteUsers: (userIds: number[]) => Promise<void>;
+};
+
+
+export function DataTable({ users, blockUsers, unblockUsers, deleteUsers }: DataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -191,9 +163,11 @@ export function DataTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const router = useRouter();
+  const [pending, setPending] = React.useState(false);
 
   const table = useReactTable({
-    data,
+    data: users,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -222,12 +196,82 @@ export function DataTable() {
           }
           className="max-w-sm"
         />
-        <Button variant={'outline'}>Block</Button>
-        <Button variant={'outline'}>Unblock</Button>
-        <Button variant={'destructive'}>Delete</Button>
+        <Button
+          onClick={() => {
+            const selectedUserIds = table.getFilteredSelectedRowModel().rows.map(r => r.original.id);
+            setPending(true);
+            blockUsers(selectedUserIds).then(() => {
+              router.refresh();
+              table.toggleAllPageRowsSelected(false);
+              setPending(false);
+            });
+          }}
+          variant={'outline'}
+          disabled={pending}
+        >
+          <Lock />
+          <span className="px-1"></span>
+          Block
+        </Button>
+        <Button
+          onClick={() => {
+            const selectedUserIds = table.getFilteredSelectedRowModel().rows.map(r => r.original.id);
+            setPending(true);
+            unblockUsers(selectedUserIds).then(() => {
+              router.refresh();
+              table.toggleAllPageRowsSelected(false);
+              setPending(false);
+            });
+          }}
+          disabled={pending}
+          variant={'outline'}>
+          <Unlock />
+        </Button>
+        <Button
+          onClick={() => {
+            setPending(true);
+            const selectedUserIds = table.getFilteredSelectedRowModel().rows.map(r => r.original.id);
+            deleteUsers(selectedUserIds).then(() => {
+              router.refresh();
+              table.toggleAllPageRowsSelected(false);
+              setPending(false);
+            });
+
+          }}
+          disabled={pending}
+          variant={'destructive'}>
+          <Trash2 />
+        </Button>
+        <Button variant={'ghost'}>
+          {pending && (
+            <svg
+              className="animate-spin ml-2 h-4 w-4 text-black dark:text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
+            </svg>
+          )}</Button>
+        <Button
+          onClick={() => router.refresh()}
+          className="ml-auto"
+          variant={'outline'}>Refresh</Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" >
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -326,6 +370,6 @@ export function DataTable() {
           </Button>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

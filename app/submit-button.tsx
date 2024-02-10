@@ -2,9 +2,8 @@
 
 import { useFormStatus } from 'react-dom';
 
-export function SubmitButton({ children }: { children: React.ReactNode }) {
+export function SubmitButton({ children }: { children: React.ReactNode; }) {
   const { pending } = useFormStatus();
-
   return (
     <button
       type={pending ? 'button' : 'submit'}
@@ -14,7 +13,7 @@ export function SubmitButton({ children }: { children: React.ReactNode }) {
       {children}
       {pending && (
         <svg
-          className="animate-spin ml-2 h-4 w-4 text-black"
+          className="animate-spin ml-2 h-4 w-4 text-black dark:text-white"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -37,6 +36,7 @@ export function SubmitButton({ children }: { children: React.ReactNode }) {
       <span aria-live="polite" className="sr-only" role="status">
         {pending ? 'Loading' : 'Submit form'}
       </span>
+
     </button>
   );
 }
