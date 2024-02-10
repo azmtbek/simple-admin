@@ -1,8 +1,8 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt-ts';
-import { getUserByEmail } from '@/schema/db';
-import { authConfig } from 'app/auth.config';
+import { getUserByEmail, getUserStatusByEmail } from '@/schema/db';
+import { authConfig } from '@/app/auth.config';
 
 export const {
   handlers: { GET, POST },
@@ -15,7 +15,9 @@ export const {
     Credentials({
       async authorize({ email, password }: any) {
         let user = await getUserByEmail(email);
+        let status = await getUserStatusByEmail(email);
         if (user.length === 0) return null;
+        if (status === 'blocked') return null;
         let passwordsMatch = await compare(password, user[0].password!);
         if (passwordsMatch) return user[0] as any;
       },

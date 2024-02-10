@@ -4,9 +4,9 @@ import './globals.css';
 import { GeistSans } from 'geist/font/sans';
 import Header from './header';
 
-let title = 'Next.js + Postgres Auth Starter';
+let title = 'Simple Admin';
 let description =
-  'This is a Next.js starter kit that uses NextAuth.js for simple email + password login and a Postgres database to persist the data.';
+  'Simple.';
 
 export const metadata = {
   title,
@@ -16,7 +16,7 @@ export const metadata = {
     title,
     description,
   },
-  metadataBase: new URL('https://nextjs-postgres-auth.vercel.app'),
+  metadataBase: new URL('https://simple-admin-ten.vercel.app'),
 };
 
 export default function RootLayout({

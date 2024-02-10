@@ -1,7 +1,6 @@
 import { auth, signOut } from 'app/auth';
-import { deleteUserWithId, getAllUser, getUserByEmail, updateUserStatus } from '../../schema/db';
+import { deleteUserWithId, getAllUser, getUserByEmail, updateUserStatus } from '@/schema/db';
 import { DataTable, type UserData } from './data-table';
-import { redirect } from 'next/navigation';
 
 export default async function ProtectedPage() {
   let session = await auth();
@@ -9,9 +8,11 @@ export default async function ProtectedPage() {
   async function blockUsers(userIds: number[]) {
     "use server";
     try {
+      const user = await getUserByEmail(session?.user?.email || '');
       for (const id of userIds) {
         await updateUserStatus(id, 'blocked');
       }
+      if (userIds.includes(user[0].id)) await signOut();
     } catch (e) {
       console.log(e);
     }
@@ -31,7 +32,6 @@ export default async function ProtectedPage() {
     "use server";
     try {
       const user = await getUserByEmail(session?.user?.email || '');
-
       for (const id of userIds) {
         await deleteUserWithId(id);
       }

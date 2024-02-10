@@ -10,7 +10,7 @@ async function Header() {
   if (session?.user) {
     sessionButton = <>
       <Button variant="ghost">
-        <span className='pr-4'>Hello {session?.user?.name}! </span>
+        <span className='pr-4'>Hello {session?.user?.email}! </span>
       </Button>
       <SignOut />
     </>;

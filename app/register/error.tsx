@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default function Error({
   error,
@@ -17,7 +16,7 @@ export default function Error({
         <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white  dark:bg-gray-900 px-4 py-6 pt-8 text-center sm:px-16">
           <h3 className="text-2xl font-semibold">This user email already exists try another!</h3>
           <Button onClick={() => reset()}>Try again</Button>
-          <Link href='/login' className="font-semibold text-gray-800"> or Sign in</Link>
+          <Link href='/login' className="font-semibold text-sm text-gray-800 dark:text-gray-400"> or Sign in</Link>
         </div></div>
     </div>
   );

@@ -35,7 +35,7 @@ export default function Login() {
           <SubmitButton>Sign Up</SubmitButton>
           <p className="text-center text-sm text-gray-600">
             {'Already have an account? '}
-            <Link href="/login" className="font-semibold text-gray-800">
+            <Link href="/login" className="font-semibold text-gray-800 dark:text-gray-400">
               Sign in
             </Link>
             {' instead.'}
