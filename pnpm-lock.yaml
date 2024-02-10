@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@auth/core':
+    specifier: ^0.26.3
+    version: 0.26.3
   '@auth/drizzle-adapter':
     specifier: ^0.6.3
     version: 0.6.3
